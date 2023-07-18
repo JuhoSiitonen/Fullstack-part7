@@ -1,4 +1,5 @@
-const ErrorMessage = ({ message }) => {
+const ErrorMessage = () => {
+  const message = ''
   const messageStyle = {
     color: 'red',
     background: 'lightgrey',
@@ -6,14 +7,14 @@ const ErrorMessage = ({ message }) => {
     borderStyle: 'solid',
     borderRadius: 5,
     padding: 10,
-    marginBottom: 10
+    marginBottom: 10,
   }
   if (message === '') {
     return <></>
   }
   return (
     <div style={messageStyle} className="error">
-      {message}
+      pass
     </div>
   )
 }
