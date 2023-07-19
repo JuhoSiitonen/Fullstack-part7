@@ -137,12 +137,17 @@ const App = () => {
 
   return (
     <div>
-      <h2>blogs</h2>
-      <Link to="/users">Users </Link>
+      <p>
+        <Link to="/users">Users</Link>
+        <> </>
+        <Link to="/">Blogs</Link>
+        <> </>
+        {user.username} is logged in
+        <button onClick={handleLogout}>logout</button>
+      </p>
+      <h2>Blog App</h2>
       <NotificationMessage />
       <ErrorMessage />
-      {user.username} is logged in
-      <button onClick={handleLogout}>logout</button>
       <br></br>
       <Routes>
         <Route path="/" element={mainPage()} />
