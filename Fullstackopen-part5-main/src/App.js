@@ -1,47 +1,52 @@
 import { useState, useEffect } from 'react'
+import { Routes, Route, Link, useMatch } from 'react-router-dom'
+import { useDispatch, useSelector } from 'react-redux'
 import Blog from './components/Blog'
-import blogService from './services/blogs'
-import loginService from './services/login'
 import ErrorMessage from './components/ErrorMessage'
 import NotificationMessage from './components/NotificationMessage'
 import LoginForm from './components/LoginForm'
 import AddNewBlogs from './components/AddNewBlogs'
 import Togglable from './components/Togglable'
-import { useDispatch } from 'react-redux'
+import Users from './components/Users'
+import SingleUser from './components/SingleUser'
+import SingleBlog from './components/SingleBlog'
 import { addNotification } from './reducers/notificationReducer'
+import {
+  initializeBlogs,
+  createBlog,
+  likeBlog,
+  deletionBlog,
+} from './reducers/blogReducer'
+import { logInUser, isUserLogged, logout } from './reducers/userReducer'
+import userService from './services/users'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [user, setUser] = useState(null)
+  const [users, setUsers] = useState(null)
 
   const dispatch = useDispatch()
+  const origblogs = useSelector(({ blogs }) => blogs)
+  const blogs = [...origblogs]
+  const user = useSelector(({ user }) => user)
 
   useEffect(() => {
-    blogService.getAll().then((blogs) => setBlogs(blogs))
+    dispatch(initializeBlogs())
+  }, [dispatch])
+
+  useEffect(() => {
+    dispatch(isUserLogged())
   }, [])
 
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem('loggedAppUser')
-    if (loggedUserJSON) {
-      const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      blogService.setToken(user.token)
-    }
+    userService.getAll().then((response) => setUsers(response))
   }, [])
 
   const handleLogin = async (event) => {
     event.preventDefault()
 
     try {
-      const user = await loginService.login({
-        username,
-        password,
-      })
-      window.localStorage.setItem('loggedAppUser', JSON.stringify(user))
-      blogService.setToken(user.token)
-      setUser(user)
+      dispatch(logInUser(username, password))
       setUsername('')
       setPassword('')
       dispatch(addNotification('Login succesfull!'))
@@ -51,8 +56,7 @@ const App = () => {
   }
 
   const handleLogout = () => {
-    window.localStorage.removeItem('loggedAppUser')
-    setUser(null)
+    dispatch(logout())
     dispatch(addNotification('Logoff succesfull'))
   }
 
@@ -71,21 +75,12 @@ const App = () => {
   }
 
   const handleNewBlog = (blogObject) => {
-    blogService
-      .create(blogObject)
-      .then((returnedBlog) => {
-        blogService.getAll().then((response) => {
-          setBlogs(response)
-          dispatch(
-            addNotification(
-              `a new blog ${returnedBlog.title} by ${returnedBlog.author} added`,
-            ),
-          )
-        })
-      })
-      .catch(() => {
-        dispatch(addNotification('Creating new post not successfull'))
-      })
+    dispatch(createBlog(blogObject))
+    dispatch(
+      addNotification(
+        `a new blog ${blogObject.title} by ${blogObject.author} added`,
+      ),
+    )
   }
 
   const handleUsernameChange = (event) => {
@@ -97,31 +92,36 @@ const App = () => {
   }
 
   const addNewLike = (blogObject, id) => {
-    blogService
-      .update(blogObject, id)
-      .then(() => {
-        blogService.getAll().then((response) => {
-          setBlogs(response)
-          dispatch(addNotification('like added'))
-        })
-      })
-      .catch(() => {
-        dispatch(addNotification('like not succesfull'))
-      })
+    dispatch(likeBlog(blogObject, id))
+    dispatch(addNotification('like added'))
   }
 
   const deleteBlog = (id) => {
-    blogService
-      .deletion(id)
-      .then(() => {
-        blogService.getAll().then((response) => {
-          setBlogs(response)
-          dispatch(addNotification('deletion succesfull'))
-        })
-      })
-      .catch(() => {
-        dispatch(addNotification('deletion unsuccesfull'))
-      })
+    dispatch(deletionBlog(id))
+    dispatch(addNotification('deletion succesfull'))
+  }
+
+  const match = useMatch('/users/:id')
+  const userToSee = match ? users.find((n) => n.id === match.params.id) : null
+
+  const match2 = useMatch('/blogs/:id')
+  const blogToSee = match2 ? blogs.find((n) => n.id === match2.params.id) : null
+
+  const mainPage = () => {
+    return (
+      <div>
+        <h2>Create new</h2>
+        <Togglable buttonLabel="create">
+          <AddNewBlogs handleNewBlog={handleNewBlog} />
+        </Togglable>
+        <br></br>
+        {blogs
+          .sort((firstItem, secondItem) => secondItem.likes - firstItem.likes)
+          .map((blog) => (
+            <Blog key={blog.id} blog={blog} />
+          ))}
+      </div>
+    )
   }
 
   if (user === null) {
@@ -138,27 +138,30 @@ const App = () => {
   return (
     <div>
       <h2>blogs</h2>
+      <Link to="/users">Users </Link>
       <NotificationMessage />
       <ErrorMessage />
       {user.username} is logged in
       <button onClick={handleLogout}>logout</button>
       <br></br>
-      <h2>Create new</h2>
-      <Togglable buttonLabel="create">
-        <AddNewBlogs handleNewBlog={handleNewBlog} />
-      </Togglable>
-      <br></br>
-      {blogs
-        .sort((firstItem, secondItem) => secondItem.likes - firstItem.likes)
-        .map((blog) => (
-          <Blog
-            key={blog.id}
-            blog={blog}
-            addNewLike={addNewLike}
-            deleteBlog={deleteBlog}
-            user={user}
-          />
-        ))}
+      <Routes>
+        <Route path="/" element={mainPage()} />
+        <Route path="/users" element={<Users users={users} />} />
+        <Route
+          path="/users/:id"
+          element={<SingleUser userToSee={userToSee} />}
+        />
+        <Route
+          path="/blogs/:id"
+          element={
+            <SingleBlog
+              blogToSee={blogToSee}
+              addNewLike={addNewLike}
+              deleteBlog={deleteBlog}
+            />
+          }
+        />
+      </Routes>
     </div>
   )
 }

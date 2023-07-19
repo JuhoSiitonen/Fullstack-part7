@@ -23,7 +23,7 @@ const AddNewBlogs = ({ handleNewBlog }) => {
     const blogObject = {
       title: title,
       author: author,
-      url: url
+      url: url,
     }
     handleNewBlog(blogObject)
     setTitle('')
@@ -31,43 +31,41 @@ const AddNewBlogs = ({ handleNewBlog }) => {
     setUrl('')
   }
 
-  return(
+  return (
     <form onSubmit={newBlog}>
       <div>
         title:
         <input
           value={title}
-          name='Title'
+          name="Title"
           onChange={handleTitleChange}
-          id='testTitle'
+          id="testTitle"
         />
       </div>
       <div>
         author:
         <input
           value={author}
-          name='Author'
+          name="Author"
           onChange={handleAuthorChange}
-          id='testAuthor'
+          id="testAuthor"
         />
       </div>
       <div>
         url:
-        <input
-          value={url}
-          name='Url'
-          onChange={handleUrlChange}
-          id='testUrl'
-        />
+        <input value={url} name="Url" onChange={handleUrlChange} id="testUrl" />
       </div>
       <div>
-        <button type='submit' id='createButton'>create</button>
+        <button type="submit" id="createButton">
+          create
+        </button>
       </div>
     </form>
-  )}
+  )
+}
 
 AddNewBlogs.propTypes = {
-  handleNewBlog: PropTypes.func.isRequired
+  handleNewBlog: PropTypes.func.isRequired,
 }
 
 export default AddNewBlogs

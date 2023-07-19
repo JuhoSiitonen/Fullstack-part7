@@ -4,10 +4,12 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import AddNewBlogs from './AddNewBlogs'
 
-test('pressing create calls form submit with correct values',async () => {
+test('pressing create calls form submit with correct values', async () => {
   const mockHandleNewBlog = jest.fn()
   const session = userEvent.setup()
-  const { container } = render(<AddNewBlogs handleNewBlog={mockHandleNewBlog} />)
+  const { container } = render(
+    <AddNewBlogs handleNewBlog={mockHandleNewBlog} />,
+  )
 
   const input = container.querySelector('#testTitle')
   const input2 = container.querySelector('#testAuthor')
