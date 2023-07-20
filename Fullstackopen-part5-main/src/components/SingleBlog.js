@@ -1,20 +1,17 @@
-import { useSelector } from 'react-redux'
-import { useState, useEffect } from 'react'
-import commentsService from '../services/comments'
+import { useSelector, useDispatch } from 'react-redux'
+import { useEffect } from 'react'
+import { initializeComments, newComment } from '../reducers/commentReducer'
 
-const SingleBlog = ({ blogToSee, addNewLike, deleteBlog }) => {
-  const [comments, setComments] = useState([])
-  const [comment, setComment] = useState('')
-  const user = useSelector(({ user }) => user)
-  const owner = blogToSee.user.username === user.username ? true : false
-  console.log(blogToSee)
-  console.log(user.username)
+const SingleBlog = ({ blogToSee, addNewLike }) => {
+  //const user = useSelector(({ user }) => user)
+  //const owner = blogToSee.user.username === user.username ? true : false
+  const dispatch = useDispatch()
 
   useEffect(() => {
-    commentsService
-      .getAllComments(blogToSee.id)
-      .then((response) => setComments(response))
-  }, [])
+    dispatch(initializeComments(blogToSee.id))
+  }, [dispatch])
+
+  const comments = useSelector(({ comments }) => comments)
 
   const handleLikes = () => {
     const newLikes = blogToSee.likes + 1
@@ -27,7 +24,7 @@ const SingleBlog = ({ blogToSee, addNewLike, deleteBlog }) => {
     }
     addNewLike(blogObject, blogToSee.id)
   }
-
+  /*
   const handleDeletion = () => {
     if (!window.confirm(`Remove ${blogToSee.title} by ${blogToSee.author}?`)) {
       return
@@ -42,21 +39,17 @@ const SingleBlog = ({ blogToSee, addNewLike, deleteBlog }) => {
       </button>
     )
   }
+  */
 
-  const handleCommentChange = (event) => {
-    setComment(event.target.value)
-  }
-
-  const newComment = async (event) => {
+  const newCommentSubmit = (event) => {
     event.preventDefault()
+    console.log('nyt ajetaan')
+    const comment = event.target.commenttext.value
+    event.target.commenttext.value = ''
     const commentToSave = {
       content: comment,
     }
-    const returnedComment = await commentsService.create(
-      blogToSee.id,
-      commentToSave,
-    )
-    setComments(comments.concat(returnedComment))
+    dispatch(newComment(blogToSee.id, commentToSave))
   }
 
   if (blogToSee === null) {
@@ -64,24 +57,19 @@ const SingleBlog = ({ blogToSee, addNewLike, deleteBlog }) => {
   }
   return (
     <div>
+      {console.log(blogToSee)}
       <h1>{blogToSee.title}</h1>
       <p>
         <a href={blogToSee.url}>{blogToSee.url}</a>
       </p>
       {blogToSee.likes} likes <button onClick={handleLikes}>like</button>
       <p>added by {blogToSee.user.username}</p>
-      {owner && deleteButton()}
+      {/*owner && deleteButton()*/}
       <br></br>
       <h3>Comments</h3>
-      <form onSubmit={newComment}>
-        <div>
-          <input
-            value={comment}
-            name="Comment"
-            onChange={handleCommentChange}
-          />
-          <button type="submit">add comment</button>
-        </div>
+      <form onSubmit={newCommentSubmit}>
+        <input name="commenttext" />
+        <button type="submit">add comment</button>
       </form>
       <ul>
         {comments.map((comment) => (

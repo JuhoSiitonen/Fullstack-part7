@@ -7,6 +7,7 @@ const getAllComments = (id) => {
 }
 
 const create = async (id, newObject) => {
+  console.log(newObject)
   const response = await axios.post(`${baseUrl}/${id}/comments`, newObject)
   console.log(newObject)
   return response.data

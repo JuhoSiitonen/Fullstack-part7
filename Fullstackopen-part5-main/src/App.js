@@ -44,20 +44,13 @@ const App = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault()
-
-    try {
-      dispatch(logInUser(username, password))
-      setUsername('')
-      setPassword('')
-      dispatch(addNotification('Login succesfull!'))
-    } catch (exception) {
-      dispatch(addNotification('Wrong credentials'))
-    }
+    dispatch(logInUser(username, password))
+    setUsername('')
+    setPassword('')
   }
 
   const handleLogout = () => {
     dispatch(logout())
-    dispatch(addNotification('Logoff succesfull'))
   }
 
   const loginForm = () => {
