@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import PropTypes from 'prop-types'
+import { Form } from 'react-bootstrap'
 
 const AddNewBlogs = ({ handleNewBlog }) => {
   const [title, setTitle] = useState('')
@@ -31,36 +32,48 @@ const AddNewBlogs = ({ handleNewBlog }) => {
     setUrl('')
   }
 
+  const buttonStyle = {
+    borderRadius: '2px',
+  }
+
   return (
-    <form onSubmit={newBlog}>
-      <div>
-        title:
-        <input
-          value={title}
-          name="Title"
-          onChange={handleTitleChange}
-          id="testTitle"
-        />
-      </div>
-      <div>
-        author:
-        <input
-          value={author}
-          name="Author"
-          onChange={handleAuthorChange}
-          id="testAuthor"
-        />
-      </div>
-      <div>
-        url:
-        <input value={url} name="Url" onChange={handleUrlChange} id="testUrl" />
-      </div>
-      <div>
-        <button type="submit" id="createButton">
-          create
-        </button>
-      </div>
-    </form>
+    <Form onSubmit={newBlog}>
+      <Form.Group>
+        <div>
+          <Form.Label>title:</Form.Label>
+          <Form.Control
+            value={title}
+            name="Title"
+            onChange={handleTitleChange}
+            id="testTitle"
+          />
+        </div>
+        <div>
+          <Form.Label>author:</Form.Label>
+          <Form.Control
+            value={author}
+            name="Author"
+            onChange={handleAuthorChange}
+            id="testAuthor"
+          />
+        </div>
+        <div>
+          <Form.Label>url:</Form.Label>
+          <Form.Control
+            value={url}
+            name="Url"
+            onChange={handleUrlChange}
+            id="testUrl"
+          />
+        </div>
+        <br></br>
+        <div>
+          <button type="submit" id="createButton" style={buttonStyle}>
+            create
+          </button>
+        </div>
+      </Form.Group>
+    </Form>
   )
 }
 

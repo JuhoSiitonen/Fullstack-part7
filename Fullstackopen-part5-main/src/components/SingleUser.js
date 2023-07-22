@@ -1,3 +1,5 @@
+import { ListGroup } from 'react-bootstrap'
+
 const SingleUser = ({ userToSee }) => {
   console.log(userToSee)
   if (userToSee === null) {
@@ -6,12 +8,14 @@ const SingleUser = ({ userToSee }) => {
   return (
     <div>
       <h1>{userToSee.username}</h1>
+      <br></br>
       <h2>Added blogs:</h2>
-      <ul>
+
+      <ListGroup>
         {userToSee.blogs.map((blog) => (
-          <li key={blog.id}>{blog.title}</li>
+          <ListGroup.Item key={blog.id}>{blog.title}</ListGroup.Item>
         ))}
-      </ul>
+      </ListGroup>
     </div>
   )
 }

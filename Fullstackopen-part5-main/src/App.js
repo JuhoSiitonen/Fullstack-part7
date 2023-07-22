@@ -1,15 +1,14 @@
 import { useState, useEffect } from 'react'
-import { Routes, Route, Link, useMatch } from 'react-router-dom'
+import { Routes, Route, useMatch } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import Blog from './components/Blog'
 import ErrorMessage from './components/ErrorMessage'
 import NotificationMessage from './components/NotificationMessage'
 import LoginForm from './components/LoginForm'
-import AddNewBlogs from './components/AddNewBlogs'
-import Togglable from './components/Togglable'
 import Users from './components/Users'
 import SingleUser from './components/SingleUser'
 import SingleBlog from './components/SingleBlog'
+import Mainpage from './components/Mainpage'
+import Navigationbar from './components/Navigationbar'
 import { addNotification } from './reducers/notificationReducer'
 import {
   initializeBlogs,
@@ -19,10 +18,9 @@ import {
 } from './reducers/blogReducer'
 import { logInUser, isUserLogged, logout } from './reducers/userReducer'
 import userService from './services/users'
+import { Container } from 'react-bootstrap'
 
 const App = () => {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
   const [users, setUsers] = useState(null)
 
   const dispatch = useDispatch()
@@ -36,35 +34,20 @@ const App = () => {
 
   useEffect(() => {
     dispatch(isUserLogged())
-  }, [])
-
-  useEffect(() => {
     userService.getAll().then((response) => setUsers(response))
   }, [])
 
   const handleLogin = async (event) => {
     event.preventDefault()
+    const username = event.target.Username.value
+    const password = event.target.Password.value
     dispatch(logInUser(username, password))
-    setUsername('')
-    setPassword('')
+    event.target.Username.value = ''
+    event.target.Password.value = ''
   }
 
   const handleLogout = () => {
     dispatch(logout())
-  }
-
-  const loginForm = () => {
-    return (
-      <div>
-        <LoginForm
-          handleLogin={handleLogin}
-          username={username}
-          handleUsernameChange={handleUsernameChange}
-          password={password}
-          handlePasswordChange={handlePasswordChange}
-        />
-      </div>
-    )
   }
 
   const handleNewBlog = (blogObject) => {
@@ -74,14 +57,6 @@ const App = () => {
         `a new blog ${blogObject.title} by ${blogObject.author} added`,
       ),
     )
-  }
-
-  const handleUsernameChange = (event) => {
-    setUsername(event.target.value)
-  }
-
-  const handlePasswordChange = (event) => {
-    setPassword(event.target.value)
   }
 
   const addNewLike = (blogObject, id) => {
@@ -100,50 +75,31 @@ const App = () => {
   const match2 = useMatch('/blogs/:id')
   const blogToSee = match2 ? blogs.find((n) => n.id === match2.params.id) : null
 
-  const mainPage = () => {
-    return (
-      <div>
-        <h2>Create new</h2>
-        <Togglable buttonLabel="create">
-          <AddNewBlogs handleNewBlog={handleNewBlog} />
-        </Togglable>
-        <br></br>
-        {blogs
-          .sort((firstItem, secondItem) => secondItem.likes - firstItem.likes)
-          .map((blog) => (
-            <Blog key={blog.id} blog={blog} />
-          ))}
-      </div>
-    )
-  }
-
   if (user === null) {
     return (
-      <div>
-        <NotificationMessage />
-        <ErrorMessage />
-        <h2>Log in to application</h2>
-        {!user && loginForm()}
-      </div>
+      <Container>
+        <div>
+          <NotificationMessage />
+          <ErrorMessage />
+          <h2>Log in to application</h2>
+          <LoginForm handleLogin={handleLogin} />
+        </div>
+      </Container>
     )
   }
 
   return (
-    <div>
-      <p>
-        <Link to="/users">Users</Link>
-        <> </>
-        <Link to="/">Blogs</Link>
-        <> </>
-        {user.username} is logged in
-        <button onClick={handleLogout}>logout</button>
-      </p>
-      <h2>Blog App</h2>
+    <div className="container">
+      <Navigationbar user={user} handleLogout={handleLogout} />
+      <h1>Blog App</h1>
       <NotificationMessage />
       <ErrorMessage />
       <br></br>
       <Routes>
-        <Route path="/" element={mainPage()} />
+        <Route
+          path="/"
+          element={<Mainpage handleNewBlog={handleNewBlog} blogs={blogs} />}
+        />
         <Route path="/users" element={<Users users={users} />} />
         <Route
           path="/users/:id"

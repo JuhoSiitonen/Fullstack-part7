@@ -1,6 +1,7 @@
 import { useSelector, useDispatch } from 'react-redux'
 import { useEffect } from 'react'
 import { initializeComments, newComment } from '../reducers/commentReducer'
+import { ListGroup } from 'react-bootstrap'
 
 const SingleBlog = ({ blogToSee, addNewLike }) => {
   //const user = useSelector(({ user }) => user)
@@ -43,7 +44,6 @@ const SingleBlog = ({ blogToSee, addNewLike }) => {
 
   const newCommentSubmit = (event) => {
     event.preventDefault()
-    console.log('nyt ajetaan')
     const comment = event.target.commenttext.value
     event.target.commenttext.value = ''
     const commentToSave = {
@@ -71,11 +71,12 @@ const SingleBlog = ({ blogToSee, addNewLike }) => {
         <input name="commenttext" />
         <button type="submit">add comment</button>
       </form>
-      <ul>
+      <br></br>
+      <ListGroup>
         {comments.map((comment) => (
-          <li key={comment.id}>{comment.content}</li>
+          <ListGroup.Item key={comment.id}>{comment.content}</ListGroup.Item>
         ))}
-      </ul>
+      </ListGroup>
     </div>
   )
 }
